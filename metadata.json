@@ -1,0 +1,6 @@
+{
+  "name": "Hướng Dẫn Cài Đặt Lịch Âm Bát Tự Xubuntu",
+  "description": "Trang giới thiệu mã nguồn, cấu hình tối ưu giao diện Conky và hướng dẫn cài đặt chi tiết Lịch Âm - Bát Tự trên Xubuntu với chế độ chạy ẩn tự động khi khởi động.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
