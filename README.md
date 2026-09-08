@@ -6,7 +6,7 @@
 
 ## 📖 Giới Thiệu Về Trang Web
 
-Trang web **Lịch Âm - Bát Tự Trên Xubuntu** được xây dựng nhằm cung cấp giải pháp toàn diện cho người dùng Linux tại Việt Nam (đặc biệt là cộng đồng sử dụng Xubuntu và các bản phân phối chạy môi trường XFCE) muốn hiển thị thông tin văn hóa truyền thống kết hợp dữ liệu thiên văn học chính xác và giám sát hệ thống ngay trên màn hình Desktop.
+Trang web **Lịch Âm - Bát Tự Trên Xubuntu /xubuntu-bat-tu-calendar.vercel.app** được xây dựng nhằm cung cấp giải pháp toàn diện cho người dùng Linux tại Việt Nam (đặc biệt là cộng đồng sử dụng Xubuntu và các bản phân phối chạy môi trường XFCE) muốn hiển thị thông tin văn hóa truyền thống kết hợp dữ liệu thiên văn học chính xác và giám sát hệ thống ngay trên màn hình Desktop.
 
 Trang web đóng vai trò như một **trung tâm tài liệu tương tác (Interactive Documentation & Simulator)**, hỗ trợ người dùng xem trước giao diện, tùy biến thông số theo khu vực địa lý, sao chép mã nguồn và thực hiện cài đặt tự động chỉ với một vài thao tác đơn giản.
 
