@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive, MapPin, CloudRain, Wind, Compass, Search } from 'lucide-react';
+import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive, MapPin, CloudRain, Wind, Compass, Search, Clock } from 'lucide-react';
 import { CONKY_THEMES, VIETNAM_LOCATIONS } from '../data/locations';
 import { getBatTuNow, LunarCalendarData } from '../utils/lunarCalc';
+import { SingleFileInstallerCard } from './SingleFileInstallerCard';
 
 interface SimulatorProps {
-  onExportConkyConfig: (themeId: string, position: string) => void;
+  onExportConkyConfig?: (themeId: string, position: string) => void;
 }
 
 export function InteractiveSimulator({ onExportConkyConfig }: SimulatorProps) {
   const [selectedThemeId, setSelectedThemeId] = useState('twilight-classic');
   const [position, setPosition] = useState<'top_right' | 'top_left' | 'bottom_right' | 'bottom_left'>('top_right');
+  const [delaySeconds, setDelaySeconds] = useState(10);
   const [wallpaper, setWallpaper] = useState<'twilight' | 'midnight' | 'cyber' | 'forest'>('twilight');
   const [transparency, setTransparency] = useState<'pure' | 'tinted' | 'glass'>('pure');
   const [fontFamily, setFontFamily] = useState('font-sans');
@@ -906,10 +908,40 @@ color6 = '${currentTheme.colorSun}',
                 </div>
               </div>
 
+              {/* Startup delay */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>5. Thời Gian Chờ Khởi Động (Delay)</span>
+                  </label>
+                  <span className="text-xs font-mono font-bold text-cyan-400">{delaySeconds} giây</span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[5, 10, 15, 20].map((sec) => (
+                    <button
+                      key={sec}
+                      type="button"
+                      onClick={() => setDelaySeconds(sec)}
+                      className={`p-1.5 rounded-lg text-xs font-medium border text-center cursor-pointer transition-colors ${
+                        delaySeconds === sec
+                          ? 'border-cyan-400 bg-cyan-500/20 text-white font-bold'
+                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {sec}s {sec === 10 ? '★' : ''}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[10px] text-slate-500 mt-1">
+                  ★ Khuyên dùng 10s: Chờ XFCE Desktop & Compositor nạp xong tránh chớp nháy.
+                </div>
+              </div>
+
               {/* Transparency Mode */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  4. Độ Trong Suốt (XFCE Compositor)
+                  6. Độ Trong Suốt (XFCE Compositor)
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
                   <button
@@ -938,21 +970,27 @@ color6 = '${currentTheme.colorSun}',
                   </button>
                 </div>
               </div>
-
-              {/* Action: Copy config snippet */}
-              <div className="pt-2 border-t border-slate-800">
-                <button
-                  id="simulator-copy-config-btn"
-                  onClick={copyWidgetConkyCode}
-                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold text-xs flex items-center justify-center gap-2 border border-slate-700 transition-colors cursor-pointer"
-                >
-                  {copiedConfig ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                  <span>{copiedConfig ? 'Đã sao chép cấu hình màu!' : 'Sao chép đoạn mã màu này'}</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
+
+        {/* BỘ CÀI ĐẶT 1-FILE DUY NHẤT TỰ ĐỘNG ĐỒNG BỘ THEO TÙY CHỈNH */}
+        {(() => {
+          const activeLocation = VIETNAM_LOCATIONS.find((c) => c.name === selectedCity) || VIETNAM_LOCATIONS[0];
+          return (
+            <SingleFileInstallerCard
+              options={{
+                themeId: selectedThemeId,
+                position: position,
+                isAutoLocation: isAutoLocation,
+                selectedCity: selectedCity,
+                latitude: activeLocation.lat,
+                longitude: activeLocation.lng,
+                delaySeconds: delaySeconds,
+              }}
+            />
+          );
+        })()}
       </div>
     </section>
   );

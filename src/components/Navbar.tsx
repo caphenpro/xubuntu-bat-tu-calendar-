@@ -45,42 +45,21 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
             className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
           >
             <Monitor className="w-4 h-4 text-cyan-400" />
-            Mô Phỏng Trực Quan
+            Mô Phỏng & Tùy Chỉnh
           </button>
           <button
-            onClick={() => scrollTo('install-guide')}
+            onClick={() => scrollTo('single-file-installer')}
             className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
           >
             <Terminal className="w-4 h-4 text-emerald-400" />
-            Hướng Dẫn Cài Đặt
+            Bộ Cài 1-File Duy Nhất
           </button>
           <button
-            onClick={() => scrollTo('source-code')}
-            className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
-          >
-            <Code2 className="w-4 h-4 text-amber-400" />
-            Bộ Mã Nguồn
-          </button>
-          <button
-            onClick={() => scrollTo('optimization')}
+            onClick={() => scrollTo('documentation-hub')}
             className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4 text-purple-400" />
-            Tối Ưu Xubuntu
-          </button>
-          <button
-            onClick={() => scrollTo('generator')}
-            className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
-          >
-            <Sliders className="w-4 h-4 text-sky-400" />
-            Tùy Biến Lệnh
-          </button>
-          <button
-            onClick={() => scrollTo('faq')}
-            className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
-          >
-            <HelpCircle className="w-4 h-4 text-rose-400" />
-            Sửa Lỗi
+            Tối Ưu XFCE & Sửa Lỗi
           </button>
         </nav>
 
@@ -88,11 +67,11 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
         <div className="hidden sm:flex items-center gap-3">
           <button
             id="nav-quick-install-btn"
-            onClick={onQuickInstallClick}
+            onClick={() => scrollTo('single-file-installer')}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium text-sm shadow-md shadow-cyan-500/20 flex items-center gap-2 transition-all cursor-pointer"
           >
             <Terminal className="w-4 h-4" />
-            <span>Lệnh Cài Đặt Nhanh</span>
+            <span>Lấy File Cài Đặt 1-Chạm</span>
           </button>
         </div>
 
@@ -116,53 +95,32 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
           >
             <Monitor className="w-4 h-4 text-cyan-400" />
-            Trình Mô Phỏng Trực Quan
+            Mô Phỏng & Tùy Chỉnh Trực Quan
           </button>
           <button
-            onClick={() => scrollTo('install-guide')}
+            onClick={() => scrollTo('single-file-installer')}
             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
           >
             <Terminal className="w-4 h-4 text-emerald-400" />
-            Hướng Dẫn Cài Đặt Chi Tiết
+            Bộ Cài Đặt 1-File Duy Nhất
           </button>
           <button
-            onClick={() => scrollTo('source-code')}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
-          >
-            <Code2 className="w-4 h-4 text-amber-400" />
-            Bộ Mã Nguồn & Cấu Hình
-          </button>
-          <button
-            onClick={() => scrollTo('optimization')}
+            onClick={() => scrollTo('documentation-hub')}
             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4 text-purple-400" />
-            Bí Quyết Tối Ưu Xubuntu
-          </button>
-          <button
-            onClick={() => scrollTo('generator')}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
-          >
-            <Sliders className="w-4 h-4 text-sky-400" />
-            Tùy Biến Lệnh & Tọa Độ
-          </button>
-          <button
-            onClick={() => scrollTo('faq')}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
-          >
-            <HelpCircle className="w-4 h-4 text-rose-400" />
-            Khắc Phục Lỗi Thường Gặp
+            Tài Liệu Kỹ Thuật, XFCE & Sửa Lỗi
           </button>
           <div className="pt-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                onQuickInstallClick();
+                scrollTo('single-file-installer');
               }}
-              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium text-sm flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium text-sm flex items-center justify-center gap-2 cursor-pointer"
             >
               <Terminal className="w-4 h-4" />
-              Xem Lệnh Cài Đặt Nhanh
+              Lấy Bộ Cài 1-Chạm (.sh)
             </button>
           </div>
         </div>

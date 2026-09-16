@@ -39,28 +39,28 @@ export function Hero({ onExploreClick, onInstallGuideClick }: HeroProps) {
 
           {/* Subtitle */}
           <p className="mt-5 text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto">
-            Giải pháp hiển thị Lịch Âm, Tứ Trụ Bát Tự, 24 Tiết Khí thiên văn độ chính xác cao từ NASA JPL,
-            tự động cập nhật Thời tiết & Trạng thái phần cứng. Hoạt động dạng <strong>ẩn nền tự động sau thời gian trễ</strong> khi mở máy.
+            Mô phỏng tùy chỉnh Lịch Âm, Bát Tự Can Chi, 24 Tiết Khí NASA JPL và Thời tiết mưa/gió trên màn hình ảo.
+            Sau đó nhận ngay <strong>1 tệp cài đặt duy nhất (.sh)</strong> tích hợp sẵn mọi cấu hình, chỉ cần copy dán vào Terminal là chạy lên desktop ngay!
           </p>
 
           {/* Action buttons */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
               id="hero-start-install-btn"
-              onClick={onInstallGuideClick}
+              onClick={onExploreClick}
               className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-base shadow-lg shadow-cyan-500/25 flex items-center gap-2.5 transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
               <Terminal className="w-5 h-5" />
-              <span>Xem Hướng Dẫn Cài Đặt Chi Tiết</span>
+              <span>Tùy Chỉnh & Lấy Bộ Cài 1-File Ngay</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
               id="hero-preview-btn"
-              onClick={onExploreClick}
+              onClick={onInstallGuideClick}
               className="px-6 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 font-semibold text-base flex items-center gap-2.5 transition-all cursor-pointer"
             >
-              <Play className="w-4 h-4 text-cyan-400" />
-              <span>Thử Nghiệm Màn Hình Trực Quan</span>
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Tài Liệu XFCE & Sửa Lỗi</span>
             </button>
           </div>
 
