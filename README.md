@@ -43,12 +43,13 @@ Trang web cung cấp toàn văn mã nguồn của 5 thành phần cốt lõi kè
 - **`lunar_conky.desktop`**: Tệp cấu hình Autostart tiêu chuẩn XDG.
 - **`install_all.sh`**: Kịch bản cài đặt tự động 100% — chỉ cần chạy 1 lệnh terminal là hoàn thành.
 
-### 4. 🛠️ Bộ Tạo Cấu Hình Tự Động Theo Tỉnh/Thành (Config Generator)
-- Tích hợp sẵn tọa độ của các thành phố lớn: Hà Nội, TP. Hồ Chí Minh, Đà Nẵng, Huế, Cần Thơ, Hải Phòng.
-- Cho phép nhập tọa độ Kinh độ / Vĩ độ bất kỳ.
-- Tự động tạo lệnh bash tùy biến sẵn vị trí hiển thị, tọa độ thời tiết và thời gian chờ khởi động.
+### 5. 🛠️ Bộ Tạo Cấu Hình Tự Động Với Đầy Đủ 63 Tỉnh Thành Việt Nam (Config Generator)
+- Tích hợp sẵn tọa độ GPS chính xác (Vĩ độ, Kinh độ) của toàn bộ **63 tỉnh, thành phố trực thuộc Trung ương** của Việt Nam hiện nay.
+- Phân nhóm theo 3 miền địa lý: **Miền Bắc (25 tỉnh thành)**, **Miền Trung & Tây Nguyên (19 tỉnh thành)**, **Miền Nam (19 tỉnh thành)**.
+- Bộ lọc thông minh kèm thanh tìm kiếm thời gian thực (Real-time Search) và các thẻ gợi ý nhanh cho các trung tâm đô thị lớn.
+- Tự động tạo lệnh bash tùy biến sẵn vị trí hiển thị, tọa độ thời tiết, lượng mưa, tốc độ gió và thời gian chờ khởi động.
 
-### 5. 🎨 Hướng Dẫn Tối Ưu Hóa XFCE & Sửa Lỗi Thường Gặp (Troubleshooting)
+### 6. 🎨 Hướng Dẫn Tối Ưu Hóa XFCE & Sửa Lỗi Thường Gặp (Troubleshooting)
 - Hướng dẫn cấu hình **XFCE Compositor** (`xfwm4-tweaks-settings`) chống hiện tượng giật bóng đổ và nháy màn hình.
 - Khắc phục triệt để lỗi Conky biến mất khi click chuột vào desktop XFCE (`own_window_type = 'desktop'`).
 - Xử lý lỗi thiếu file dữ liệu thiên văn `de421.bsp` hoặc thiếu module Python.

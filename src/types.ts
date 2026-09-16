@@ -2,6 +2,7 @@ export interface CityLocation {
   name: string;
   lat: number;
   lng: number;
+  region?: 'Bắc' | 'Trung' | 'Nam';
 }
 
 export interface ConkyTheme {

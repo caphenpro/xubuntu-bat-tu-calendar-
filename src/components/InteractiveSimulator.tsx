@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive, MapPin, CloudRain, Wind, Compass } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive, MapPin, CloudRain, Wind, Compass, Search } from 'lucide-react';
 import { CONKY_THEMES, VIETNAM_LOCATIONS } from '../data/locations';
 import { getBatTuNow, LunarCalendarData } from '../utils/lunarCalc';
 
@@ -19,6 +19,8 @@ export function InteractiveSimulator({ onExportConkyConfig }: SimulatorProps) {
   // Weather and auto-location state
   const [isAutoLocation, setIsAutoLocation] = useState(true);
   const [selectedCity, setSelectedCity] = useState("Hà Nội");
+  const [simRegionFilter, setSimRegionFilter] = useState<'all' | 'Bắc' | 'Trung' | 'Nam'>('all');
+  const [simSearchQuery, setSimSearchQuery] = useState('');
   const [weatherStatus, setWeatherStatus] = useState("Mưa rào nhẹ");
   const [temperature, setTemperature] = useState(28.5);
   const [precipitation, setPrecipitation] = useState(4.2);
@@ -129,6 +131,20 @@ export function InteractiveSimulator({ onExportConkyConfig }: SimulatorProps) {
   };
 
   const currentTheme = CONKY_THEMES.find((t) => t.id === selectedThemeId) || CONKY_THEMES[0];
+
+  const simFilteredProvinces = useMemo(() => {
+    return VIETNAM_LOCATIONS.filter((loc) => {
+      const matchRegion = simRegionFilter === 'all' || loc.region === simRegionFilter;
+      const matchQuery =
+        simSearchQuery.trim() === '' ||
+        loc.name.toLowerCase().includes(simSearchQuery.toLowerCase().trim());
+      return matchRegion && matchQuery;
+    });
+  }, [simRegionFilter, simSearchQuery]);
+
+  const northProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Bắc'), []);
+  const centralProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Trung'), []);
+  const southProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Nam'), []);
 
   // Wallpaper backgrounds
   const getWallpaperClass = () => {
@@ -572,23 +588,169 @@ color6 = '${currentTheme.colorSun}',
                   </div>
 
                   {!isAutoLocation && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Cần Thơ", "Hải Phòng", "Huế"].map((city) => (
+                    <div className="mt-2 space-y-2.5 p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                      {/* Region filter tabs */}
+                      <div className="flex items-center gap-1 p-0.5 bg-slate-900 rounded-lg border border-slate-800 text-[10px]">
                         <button
-                          key={city}
-                          onClick={() => {
-                            setSelectedCity(city);
-                            refreshDataWithWeather({ autoLoc: false, city });
-                          }}
-                          className={`px-2 py-1 rounded text-[11px] font-medium border cursor-pointer ${
-                            selectedCity === city
-                              ? 'bg-cyan-500/30 border-cyan-400 text-white font-bold'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                          type="button"
+                          onClick={() => setSimRegionFilter('all')}
+                          className={`flex-1 py-1 px-1.5 rounded-md font-medium transition-colors ${
+                            simRegionFilter === 'all'
+                              ? 'bg-cyan-500/30 text-cyan-300 font-bold'
+                              : 'text-slate-400 hover:text-slate-200'
                           }`}
                         >
-                          {city}
+                          Tất cả (63)
                         </button>
-                      ))}
+                        <button
+                          type="button"
+                          onClick={() => setSimRegionFilter('Bắc')}
+                          className={`flex-1 py-1 px-1.5 rounded-md font-medium transition-colors ${
+                            simRegionFilter === 'Bắc'
+                              ? 'bg-cyan-500/30 text-cyan-300 font-bold'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Bắc ({northProvinces.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSimRegionFilter('Trung')}
+                          className={`flex-1 py-1 px-1.5 rounded-md font-medium transition-colors ${
+                            simRegionFilter === 'Trung'
+                              ? 'bg-cyan-500/30 text-cyan-300 font-bold'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Trung ({centralProvinces.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSimRegionFilter('Nam')}
+                          className={`flex-1 py-1 px-1.5 rounded-md font-medium transition-colors ${
+                            simRegionFilter === 'Nam'
+                              ? 'bg-cyan-500/30 text-cyan-300 font-bold'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Nam ({southProvinces.length})
+                        </button>
+                      </div>
+
+                      {/* Search box */}
+                      <div className="relative">
+                        <Search className="w-3 h-3 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={simSearchQuery}
+                          onChange={(e) => setSimSearchQuery(e.target.value)}
+                          placeholder="Tìm nhanh trong 63 tỉnh thành..."
+                          className="w-full pl-7 pr-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-white placeholder-slate-500 focus:border-cyan-500 outline-none"
+                        />
+                        {simSearchQuery && (
+                          <button
+                            type="button"
+                            onClick={() => setSimSearchQuery('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-slate-400 hover:text-white px-1 py-0.5 rounded bg-slate-800"
+                          >
+                            Xóa
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Quick chips */}
+                      <div>
+                        <div className="text-[10px] text-slate-400 mb-1 flex items-center justify-between">
+                          <span>Gợi ý nhanh ({simFilteredProvinces.length} tỉnh):</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto pr-1">
+                          {["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Cần Thơ", "Hải Phòng", "Cà Mau", "Huế", "Nha Trang", "Đà Lạt", "Vinh", "Quảng Ninh", "Bình Dương"].map((city) => (
+                            <button
+                              key={city}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCity(city);
+                                refreshDataWithWeather({ autoLoc: false, city });
+                              }}
+                              className={`px-1.5 py-0.5 rounded text-[10px] font-medium border cursor-pointer transition-colors ${
+                                selectedCity === city
+                                  ? 'bg-cyan-500/30 border-cyan-400 text-white font-bold'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              {city}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dropdown with all 63 */}
+                      <div>
+                        <select
+                          value={selectedCity}
+                          onChange={(e) => {
+                            const newCity = e.target.value;
+                            setSelectedCity(newCity);
+                            refreshDataWithWeather({ autoLoc: false, city: newCity });
+                          }}
+                          className="w-full p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white text-[11px] focus:border-cyan-500 outline-none"
+                        >
+                          {simRegionFilter === 'all' && !simSearchQuery.trim() ? (
+                            <>
+                              <optgroup label="Thành Phố Trực Thuộc Trung Ương">
+                                {VIETNAM_LOCATIONS.slice(0, 5).map((city) => (
+                                  <option key={city.name} value={city.name}>
+                                    ★ {city.name} ({city.lat}, {city.lng})
+                                  </option>
+                                ))}
+                              </optgroup>
+                              <optgroup label="Miền Bắc (25 tỉnh thành)">
+                                {northProvinces.map((city) => (
+                                  <option key={city.name} value={city.name}>
+                                    {city.name} ({city.lat}, {city.lng})
+                                  </option>
+                                ))}
+                              </optgroup>
+                              <optgroup label="Miền Trung & Tây Nguyên (19 tỉnh thành)">
+                                {centralProvinces.map((city) => (
+                                  <option key={city.name} value={city.name}>
+                                    {city.name} ({city.lat}, {city.lng})
+                                  </option>
+                                ))}
+                              </optgroup>
+                              <optgroup label="Miền Nam (19 tỉnh thành)">
+                                {southProvinces.map((city) => (
+                                  <option key={city.name} value={city.name}>
+                                    {city.name} ({city.lat}, {city.lng})
+                                  </option>
+                                ))}
+                              </optgroup>
+                            </>
+                          ) : (
+                            simFilteredProvinces.map((city) => (
+                              <option key={city.name} value={city.name}>
+                                [{city.region ? `Miền ${city.region}` : 'VN'}] {city.name} ({city.lat}, {city.lng})
+                              </option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+
+                      {/* Location details card */}
+                      {(() => {
+                        const loc = VIETNAM_LOCATIONS.find((c) => c.name === selectedCity);
+                        return loc ? (
+                          <div className="p-2 rounded-lg bg-slate-900 border border-slate-800/80 text-[10px] text-slate-300 flex items-center justify-between">
+                            <span className="flex items-center gap-1 font-semibold text-white">
+                              <MapPin className="w-3 h-3 text-cyan-400" />
+                              {loc.name} {loc.region && <span className="text-[9px] px-1 rounded bg-cyan-500/20 text-cyan-300 font-normal">Miền {loc.region}</span>}
+                            </span>
+                            <span className="font-mono text-cyan-300 text-[10px]">
+                              {loc.lat}°N, {loc.lng}°E
+                            </span>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   )}
                 </div>

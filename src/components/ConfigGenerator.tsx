@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sliders, MapPin, Clock, Palette, Terminal, Copy, Check, Sparkles, Download, ArrowRight, CloudRain, Wind, Compass } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Sliders, MapPin, Clock, Palette, Terminal, Copy, Check, Sparkles, Download, ArrowRight, CloudRain, Wind, Compass, Search } from 'lucide-react';
 import { VIETNAM_LOCATIONS, CONKY_THEMES } from '../data/locations';
 import { CONKY_CONFIG_SOURCE, START_SCRIPT_SOURCE } from '../data/sourceCode';
 
@@ -8,6 +8,8 @@ export function ConfigGenerator() {
   const [selectedCity, setSelectedCity] = useState(VIETNAM_LOCATIONS[0].name);
   const [latitude, setLatitude] = useState(VIETNAM_LOCATIONS[0].lat);
   const [longitude, setLongitude] = useState(VIETNAM_LOCATIONS[0].lng);
+  const [regionFilter, setRegionFilter] = useState<'all' | 'Bắc' | 'Trung' | 'Nam'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [delaySeconds, setDelaySeconds] = useState(10);
   const [position, setPosition] = useState<'top_right' | 'top_left' | 'bottom_right' | 'bottom_left'>('top_right');
   const [themeId, setThemeId] = useState('twilight-classic');
@@ -23,6 +25,20 @@ export function ConfigGenerator() {
   };
 
   const selectedTheme = CONKY_THEMES.find((t) => t.id === themeId) || CONKY_THEMES[0];
+
+  const filteredProvinces = useMemo(() => {
+    return VIETNAM_LOCATIONS.filter((loc) => {
+      const matchRegion = regionFilter === 'all' || loc.region === regionFilter;
+      const matchQuery =
+        searchQuery.trim() === '' ||
+        loc.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
+      return matchRegion && matchQuery;
+    });
+  }, [regionFilter, searchQuery]);
+
+  const northProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Bắc'), []);
+  const centralProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Trung'), []);
+  const southProvinces = useMemo(() => VIETNAM_LOCATIONS.filter((l) => l.region === 'Nam'), []);
 
   const generatedCustomConky = `conky.config = {
     alignment = '${position}',
@@ -165,25 +181,172 @@ killall conky 2>/dev/null && ~/.config/conky/start_conky.sh`;
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => handleCityChange(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:border-cyan-500 outline-none"
-                  >
-                    {VIETNAM_LOCATIONS.map((city) => (
-                      <option key={city.name} value={city.name}>
-                        {city.name} (Vĩ độ: {city.lat}, Kinh độ: {city.lng})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="text-xs text-slate-400">
-                      Vĩ độ: <span className="text-cyan-300 font-mono font-bold">{latitude}</span>
+                <div className="space-y-3">
+                  {/* Region filter tabs */}
+                  <div className="flex items-center gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('all')}
+                      className={`flex-1 py-1 px-2 rounded-lg font-medium transition-colors ${
+                        regionFilter === 'all'
+                          ? 'bg-cyan-500/30 text-cyan-300 font-bold shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Tất cả (63)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('Bắc')}
+                      className={`flex-1 py-1 px-2 rounded-lg font-medium transition-colors ${
+                        regionFilter === 'Bắc'
+                          ? 'bg-cyan-500/30 text-cyan-300 font-bold shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Miền Bắc ({northProvinces.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('Trung')}
+                      className={`flex-1 py-1 px-2 rounded-lg font-medium transition-colors ${
+                        regionFilter === 'Trung'
+                          ? 'bg-cyan-500/30 text-cyan-300 font-bold shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Miền Trung ({centralProvinces.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegionFilter('Nam')}
+                      className={`flex-1 py-1 px-2 rounded-lg font-medium transition-colors ${
+                        regionFilter === 'Nam'
+                          ? 'bg-cyan-500/30 text-cyan-300 font-bold shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Miền Nam ({southProvinces.length})
+                    </button>
+                  </div>
+
+                  {/* Search input */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm nhanh trong 63 tỉnh thành (vd: Cà Mau, Ninh Bình, Gia Lai...)"
+                      className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:border-cyan-500 outline-none"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800"
+                      >
+                        Xóa
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Quick suggestion chips */}
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                      <span>Gợi ý tỉnh thành tiêu biểu:</span>
+                      <span className="text-cyan-400 lowercase font-normal">{filteredProvinces.length} tỉnh khả dụng</span>
                     </div>
-                    <div className="text-xs text-slate-400">
-                      Kinh độ: <span className="text-cyan-300 font-mono font-bold">{longitude}</span>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                      {["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Cà Mau", "Huế", "Nha Trang", "Đà Lạt", "Vinh", "Quảng Ninh", "Bình Dương"].map((city) => (
+                        <button
+                          key={city}
+                          type="button"
+                          onClick={() => handleCityChange(city)}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-medium border cursor-pointer transition-colors ${
+                            selectedCity === city
+                              ? 'bg-cyan-500/30 border-cyan-400 text-white font-bold shadow-sm'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
                     </div>
+                  </div>
+
+                  {/* Grouped Select */}
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">
+                      Chọn trực tiếp từ danh sách đầy đủ:
+                    </label>
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs sm:text-sm focus:border-cyan-500 outline-none"
+                    >
+                      {regionFilter === 'all' && !searchQuery.trim() ? (
+                        <>
+                          <optgroup label="Thành Phố Trực Thuộc Trung Ương">
+                            {VIETNAM_LOCATIONS.slice(0, 5).map((city) => (
+                              <option key={city.name} value={city.name}>
+                                ★ {city.name} ({city.lat}, {city.lng})
+                              </option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Miền Bắc (25 tỉnh thành)">
+                            {northProvinces.map((city) => (
+                              <option key={city.name} value={city.name}>
+                                {city.name} ({city.lat}, {city.lng})
+                              </option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Miền Trung & Tây Nguyên (19 tỉnh thành)">
+                            {centralProvinces.map((city) => (
+                              <option key={city.name} value={city.name}>
+                                {city.name} ({city.lat}, {city.lng})
+                              </option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Miền Nam (19 tỉnh thành)">
+                            {southProvinces.map((city) => (
+                              <option key={city.name} value={city.name}>
+                                {city.name} ({city.lat}, {city.lng})
+                              </option>
+                            ))}
+                          </optgroup>
+                        </>
+                      ) : (
+                        filteredProvinces.map((city) => (
+                          <option key={city.name} value={city.name}>
+                            [{city.region ? `Miền ${city.region}` : 'VN'}] {city.name} ({city.lat}, {city.lng})
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+
+                  {/* Selected province info card */}
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>{selectedCity}</span>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+                          {VIETNAM_LOCATIONS.find((c) => c.name === selectedCity)?.region
+                            ? `Miền ${VIETNAM_LOCATIONS.find((c) => c.name === selectedCity)?.region}`
+                            : 'Việt Nam'}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-3">
+                        <span>Vĩ độ (Lat): <strong className="text-cyan-300 font-mono">{latitude}</strong></span>
+                        <span>Kinh độ (Lng): <strong className="text-cyan-300 font-mono">{longitude}</strong></span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Đã chọn</span>
+                    </span>
                   </div>
                 </div>
               )}
