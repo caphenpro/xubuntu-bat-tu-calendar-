@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive } from 'lucide-react';
-import { CONKY_THEMES } from '../data/locations';
+import { Monitor, Palette, Move, Sliders, Eye, RefreshCw, Copy, Check, Sparkles, Sun, Cloud, Cpu, HardDrive, MapPin, CloudRain, Wind, Compass } from 'lucide-react';
+import { CONKY_THEMES, VIETNAM_LOCATIONS } from '../data/locations';
 import { getBatTuNow, LunarCalendarData } from '../utils/lunarCalc';
 
 interface SimulatorProps {
@@ -15,17 +15,118 @@ export function InteractiveSimulator({ onExportConkyConfig }: SimulatorProps) {
   const [fontFamily, setFontFamily] = useState('font-sans');
   const [fontSize, setFontSize] = useState<number>(13);
   const [isLiveClock, setIsLiveClock] = useState(true);
-  const [calendarData, setCalendarData] = useState<LunarCalendarData>(getBatTuNow());
+
+  // Weather and auto-location state
+  const [isAutoLocation, setIsAutoLocation] = useState(true);
+  const [selectedCity, setSelectedCity] = useState("Hà Nội");
+  const [weatherStatus, setWeatherStatus] = useState("Mưa rào nhẹ");
+  const [temperature, setTemperature] = useState(28.5);
+  const [precipitation, setPrecipitation] = useState(4.2);
+  const [windSpeed, setWindSpeed] = useState(16.5);
+  const [windDirection, setWindDirection] = useState("Đông Nam");
+
+  const [calendarData, setCalendarData] = useState<LunarCalendarData>(
+    getBatTuNow(new Date(), {
+      locationName: "Hà Nội (Tự động định vị)",
+      isAutoLocation: true,
+      weatherStatus: "Mưa rào nhẹ",
+      temperature: 28.5,
+      precipitation: 4.2,
+      windSpeed: 16.5,
+      windDirection: "Đông Nam",
+    })
+  );
   const [copiedConfig, setCopiedConfig] = useState(false);
+
+  // Helper to re-render calendar with current weather inputs
+  const refreshDataWithWeather = (overrides?: {
+    city?: string;
+    autoLoc?: boolean;
+    status?: string;
+    temp?: number;
+    precip?: number;
+    wind?: number;
+    dir?: string;
+  }) => {
+    const cCity = overrides?.city ?? selectedCity;
+    const cAuto = overrides?.autoLoc ?? isAutoLocation;
+    const cStatus = overrides?.status ?? weatherStatus;
+    const cTemp = overrides?.temp ?? temperature;
+    const cPrecip = overrides?.precip ?? precipitation;
+    const cWind = overrides?.wind ?? windSpeed;
+    const cDir = overrides?.dir ?? windDirection;
+
+    const locLabel = cAuto ? `${cCity} (Tự động định vị)` : `${cCity} (Chỉ định)`;
+
+    setCalendarData(
+      getBatTuNow(new Date(), {
+        locationName: locLabel,
+        isAutoLocation: cAuto,
+        weatherStatus: cStatus,
+        temperature: cTemp,
+        apparentTemperature: Math.round((cTemp + (cPrecip > 0 ? 1.5 : 2.5)) * 10) / 10,
+        humidity: cPrecip > 0 ? 82 : 68,
+        precipitation: cPrecip,
+        windSpeed: cWind,
+        windDirection: cDir,
+      })
+    );
+  };
 
   // Live second clock updater
   useEffect(() => {
     if (!isLiveClock) return;
     const timer = setInterval(() => {
-      setCalendarData(getBatTuNow(new Date()));
+      setCalendarData((prev) => {
+        const next = getBatTuNow(new Date(), {
+          locationName: prev.locationName,
+          isAutoLocation: prev.isAutoLocation,
+          weatherStatus: prev.weatherStatus,
+          temperature: prev.temperature,
+          apparentTemperature: prev.apparentTemperature,
+          humidity: prev.humidity,
+          precipitation: prev.precipitation,
+          windSpeed: prev.windSpeed,
+          windDirection: prev.windDirection,
+        });
+        return next;
+      });
     }, 1000);
     return () => clearInterval(timer);
   }, [isLiveClock]);
+
+  // Preset weather handlers
+  const applyWeatherPreset = (preset: 'rain' | 'clear' | 'storm' | 'drizzle') => {
+    if (preset === 'rain') {
+      setWeatherStatus("Mưa rào vừa");
+      setTemperature(27.0);
+      setPrecipitation(8.5);
+      setWindSpeed(21.0);
+      setWindDirection("Đông Bắc");
+      refreshDataWithWeather({ status: "Mưa rào vừa", temp: 27.0, precip: 8.5, wind: 21.0, dir: "Đông Bắc" });
+    } else if (preset === 'clear') {
+      setWeatherStatus("Nắng nhẹ");
+      setTemperature(32.5);
+      setPrecipitation(0.0);
+      setWindSpeed(9.5);
+      setWindDirection("Đông Nam");
+      refreshDataWithWeather({ status: "Nắng nhẹ", temp: 32.5, precip: 0.0, wind: 9.5, dir: "Đông Nam" });
+    } else if (preset === 'storm') {
+      setWeatherStatus("Dông bão to");
+      setTemperature(25.5);
+      setPrecipitation(36.0);
+      setWindSpeed(48.0);
+      setWindDirection("Tây Nam");
+      refreshDataWithWeather({ status: "Dông bão to", temp: 25.5, precip: 36.0, wind: 48.0, dir: "Tây Nam" });
+    } else {
+      setWeatherStatus("Mưa phùn nhẹ");
+      setTemperature(26.0);
+      setPrecipitation(1.2);
+      setWindSpeed(12.0);
+      setWindDirection("Đông");
+      refreshDataWithWeather({ status: "Mưa phùn nhẹ", temp: 26.0, precip: 1.2, wind: 12.0, dir: "Đông" });
+    }
+  };
 
   const currentTheme = CONKY_THEMES.find((t) => t.id === selectedThemeId) || CONKY_THEMES[0];
 
@@ -202,10 +303,16 @@ color6 = '${currentTheme.colorSun}',
                   {/* Weather Information */}
                   <div className="space-y-0.5 text-xs sm:text-[13px] py-1">
                     <div style={{ color: currentTheme.colorWeather }}>
-                      Trạng thái : <span className="font-semibold">{calendarData.weatherStatus}</span>
+                      Vị trí : <span className="font-semibold text-white">{calendarData.locationName}</span>
                     </div>
                     <div style={{ color: currentTheme.colorWeather }}>
-                      Nhiệt độ : <span className="text-white">{calendarData.temperature}°C</span> | Độ ẩm: <span className="text-white">{calendarData.humidity}%</span>
+                      Trạng thái : <span className="font-semibold">{calendarData.weatherStatus}</span> | <span className="text-white">{calendarData.temperature}°C</span> (Cảm giác <span className="text-white">{calendarData.apparentTemperature}°C</span>)
+                    </div>
+                    <div style={{ color: currentTheme.colorWeather }}>
+                      Độ ẩm: <span className="text-white">{calendarData.humidity}%</span> | Mưa: <span className="text-white">{calendarData.precipitation > 0 ? `${calendarData.precipitation.toFixed(1)} mm (Có mưa)` : '0 mm (Không mưa)'}</span>
+                    </div>
+                    <div style={{ color: currentTheme.colorWeather }}>
+                      Tốc độ gió : <span className="text-white">{calendarData.windSpeed} km/h</span> (Hướng {calendarData.windDirection})
                     </div>
                     <div style={{ color: currentTheme.colorSun }}>
                       Mặt trời : Mọc {calendarData.sunrise} | Lặn {calendarData.sunset}
@@ -413,10 +520,193 @@ color6 = '${currentTheme.colorSun}',
                 </div>
               </div>
 
+              {/* 3. Weather, Rain & Wind Controls */}
+              <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <CloudRain className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>3. Định Vị, Mưa & Tốc Độ Gió</span>
+                  </label>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    Mới bổ sung
+                  </span>
+                </div>
+
+                {/* Auto Location Toggle */}
+                <div>
+                  <div className="text-[11px] text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Cơ chế định vị vị trí:</span>
+                    <span className="font-semibold text-white">
+                      {isAutoLocation ? 'Tự động GeoIP' : selectedCity}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        setIsAutoLocation(true);
+                        refreshDataWithWeather({ autoLoc: true, city: "Hà Nội" });
+                      }}
+                      className={`p-2 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 cursor-pointer ${
+                        isAutoLocation
+                          ? 'border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm'
+                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <MapPin className="w-3 h-3" />
+                      <span>Tự động định vị (IP)</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsAutoLocation(false);
+                        refreshDataWithWeather({ autoLoc: false, city: selectedCity });
+                      }}
+                      className={`p-2 rounded-lg text-xs font-semibold border flex items-center justify-center gap-1.5 cursor-pointer ${
+                        !isAutoLocation
+                          ? 'border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm'
+                          : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <Compass className="w-3 h-3" />
+                      <span>Chọn thủ công</span>
+                    </button>
+                  </div>
+
+                  {!isAutoLocation && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Cần Thơ", "Hải Phòng", "Huế"].map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => {
+                            setSelectedCity(city);
+                            refreshDataWithWeather({ autoLoc: false, city });
+                          }}
+                          className={`px-2 py-1 rounded text-[11px] font-medium border cursor-pointer ${
+                            selectedCity === city
+                              ? 'bg-cyan-500/30 border-cyan-400 text-white font-bold'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Weather Presets */}
+                <div>
+                  <div className="text-[11px] text-slate-400 mb-1.5">Mẫu thời tiết thử nghiệm nhanh:</div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button
+                      onClick={() => applyWeatherPreset('rain')}
+                      className="p-1.5 rounded-lg text-[11px] font-medium border border-slate-800 bg-slate-950 hover:border-cyan-500/40 text-cyan-300 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <CloudRain className="w-3 h-3 text-cyan-400 shrink-0" />
+                      <span>Mưa rào (8.5mm, 21km/h)</span>
+                    </button>
+                    <button
+                      onClick={() => applyWeatherPreset('clear')}
+                      className="p-1.5 rounded-lg text-[11px] font-medium border border-slate-800 bg-slate-950 hover:border-amber-500/40 text-amber-300 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Sun className="w-3 h-3 text-amber-400 shrink-0" />
+                      <span>Nắng ráo (0mm, 9.5km/h)</span>
+                    </button>
+                    <button
+                      onClick={() => applyWeatherPreset('storm')}
+                      className="p-1.5 rounded-lg text-[11px] font-medium border border-slate-800 bg-slate-950 hover:border-rose-500/40 text-rose-300 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Wind className="w-3 h-3 text-rose-400 shrink-0" />
+                      <span>Dông bão (36mm, 48km/h)</span>
+                    </button>
+                    <button
+                      onClick={() => applyWeatherPreset('drizzle')}
+                      className="p-1.5 rounded-lg text-[11px] font-medium border border-slate-800 bg-slate-950 hover:border-emerald-500/40 text-emerald-300 flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Cloud className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span>Mưa phùn (1.2mm, 12km/h)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sliders for precipitation and wind */}
+                <div className="space-y-2 pt-1 border-t border-slate-800/80">
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] mb-1">
+                      <span className="text-slate-400 flex items-center gap-1">
+                        <CloudRain className="w-3 h-3 text-cyan-400" />
+                        Lượng mưa:
+                      </span>
+                      <span className="text-cyan-300 font-mono font-bold">
+                        {precipitation > 0 ? `${precipitation.toFixed(1)} mm (Có mưa)` : '0 mm (Tạnh)'}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="50"
+                      step="0.5"
+                      value={precipitation}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setPrecipitation(val);
+                        refreshDataWithWeather({ precip: val });
+                      }}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between text-[11px] mb-1">
+                      <span className="text-slate-400 flex items-center gap-1">
+                        <Wind className="w-3 h-3 text-teal-400" />
+                        Tốc độ gió & Hướng:
+                      </span>
+                      <span className="text-teal-300 font-mono font-bold">
+                        {windSpeed} km/h ({windDirection})
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="80"
+                      step="1"
+                      value={windSpeed}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setWindSpeed(val);
+                        refreshDataWithWeather({ wind: val });
+                      }}
+                      className="w-full accent-teal-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Wind direction chips */}
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-slate-500">Hướng:</span>
+                    {["Đông Nam", "Đông Bắc", "Tây Nam", "Bắc"].map((dir) => (
+                      <button
+                        key={dir}
+                        onClick={() => {
+                          setWindDirection(dir);
+                          refreshDataWithWeather({ dir });
+                        }}
+                        className={`px-2 py-0.5 rounded text-[10px] border cursor-pointer ${
+                          windDirection === dir
+                            ? 'bg-teal-500/20 border-teal-400 text-teal-300 font-bold'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {dir}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Position selector */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  3. Vị Trí Trên Màn Hình (Alignment)
+                  4. Vị Trí Trên Màn Hình (Alignment)
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button

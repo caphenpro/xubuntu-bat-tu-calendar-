@@ -1,9 +1,16 @@
 export interface LunarCalendarData {
   solarDateStr: string;
   timeStr: string;
+  locationName: string;
+  isAutoLocation: boolean;
   weatherStatus: string;
   temperature: number;
+  apparentTemperature: number;
   humidity: number;
+  precipitation: number; // Lượng mưa tính bằng mm
+  windSpeed: number;     // Tốc độ gió tính bằng km/h
+  windDirection: string; // Hướng gió: Đông, Đông Nam, Bắc...
+  windBeaufort?: string; // Cấp gió
   sunrise: string;
   sunset: string;
   tietKhi: string;
@@ -44,7 +51,20 @@ export function getCanChiNgay(date: Date): { can: string; chi: string } {
   };
 }
 
-export function getBatTuNow(date: Date = new Date()): LunarCalendarData {
+export function getBatTuNow(
+  date: Date = new Date(),
+  options?: {
+    locationName?: string;
+    isAutoLocation?: boolean;
+    weatherStatus?: string;
+    temperature?: number;
+    apparentTemperature?: number;
+    humidity?: number;
+    precipitation?: number;
+    windSpeed?: number;
+    windDirection?: string;
+  }
+): LunarCalendarData {
   // Can chi năm
   const year = date.getFullYear();
   const canNamIdx = ((year - 4) % 10 + 10) % 10;
@@ -70,9 +90,16 @@ export function getBatTuNow(date: Date = new Date()): LunarCalendarData {
   return {
     solarDateStr,
     timeStr,
-    weatherStatus: "Nhiều mây",
-    temperature: 29.1,
-    humidity: 74,
+    locationName: options?.locationName ?? "Hà Nội (Tự động định vị)",
+    isAutoLocation: options?.isAutoLocation ?? true,
+    weatherStatus: options?.weatherStatus ?? "Mưa rào nhẹ",
+    temperature: options?.temperature ?? 28.5,
+    apparentTemperature: options?.apparentTemperature ?? 31.0,
+    humidity: options?.humidity ?? 82,
+    precipitation: options?.precipitation ?? 4.2,
+    windSpeed: options?.windSpeed ?? 16.5,
+    windDirection: options?.windDirection ?? "Đông Nam",
+    windBeaufort: "Cấp 3 (Gió nhẹ)",
     sunrise: "05:50",
     sunset: "18:04",
     tietKhi: "Bạch Lộ",

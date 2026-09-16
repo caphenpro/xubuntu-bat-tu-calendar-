@@ -29,7 +29,13 @@ Trang web đóng vai trò như một **trung tâm tài liệu tương tác (Inte
 - **Xử lý triệt để cơ chế PEP 668** trên Ubuntu 24.04 LTS và 22.04 LTS với cờ `--break-system-packages`.
 - **Cơ chế khởi động an toàn**: Hướng dẫn thiết lập kịch bản `start_conky.sh` với thời gian chờ 10 giây (`sleep 10`) để đợi XFCE Window Manager và Compositor nạp xong, chống hiện tượng đè cửa sổ.
 
-### 3. 📦 Kho Mã Nguồn Đầy Đủ & Minh Bạch (Code Repository)
+### 3. 🌦️ Mô-đun Thời Tiết Tự Động Định Vị, Lượng Mưa & Tốc Độ Gió
+- **Tự động định vị không cần API Key (GeoIP)**: Sử dụng IP mạng để xác định thành phố/tỉnh thành của máy tính người dùng (`ip-api.com`), tự động lấy tọa độ mà không cần nhập thủ công.
+- **Báo cáo lượng mưa chính xác**: Kết nối trạm khí tượng Open-Meteo để đo đạc lượng mưa hiện tại (`precipitation` và `rain` tính bằng mm) và trạng thái mưa.
+- **Tốc độ gió & Hướng gió**: Hiển thị tốc độ gió chuẩn (km/h) kèm hướng gió chuyển đổi sang tiếng Việt (Bắc, Đông Bắc, Đông, Đông Nam, Nam, Tây Nam, Tây, Tây Bắc).
+- **Cảm giác nhiệt thực tế**: Tính toán `apparent_temperature` và hiển thị đồng thời độ ẩm và giờ Mặt Trời mọc/lặn theo múi giờ `Asia/Ho_Chi_Minh`.
+
+### 4. 📦 Kho Mã Nguồn Đầy Đủ & Minh Bạch (Code Repository)
 Trang web cung cấp toàn văn mã nguồn của 5 thành phần cốt lõi kèm tính năng sao chép và tải về:
 - **`lunar_solar.py`**: Mã nguồn Python tính toán Lịch Âm, Tứ Trụ Bát Tự (Can Chi Năm/Tháng/Ngày/Giờ), 24 Tiết Khí dựa trên thư viện Skyfield & mô hình NASA JPL DE421, cùng tích hợp thời tiết Open-Meteo.
 - **`conky_lunar.conf`**: Cấu hình Conky định dạng Lua hiện đại, tối ưu độ trong suốt và phân lớp hiển thị trên XFCE.

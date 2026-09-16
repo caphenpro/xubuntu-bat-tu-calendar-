@@ -75,9 +75,45 @@ WEATHER_CODES = {
     99: "Dông kèm mưa đá to"
 }
 
-def get_weather(lat=9.176, lon=105.150):
-    """Lấy thông tin thời tiết thời gian thực từ Open-Meteo API"""
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code&daily=sunrise,sunset&timezone=Asia%2FHo_Chi_Minh"
+def get_auto_location(fallback_lat=21.0285, fallback_lon=105.8542, fallback_city="Hà Nội"):
+    """Tự động định vị tọa độ và địa điểm qua IP mạng (GeoIP) không cần API key"""
+    try:
+        resp = requests.get("http://ip-api.com/json/?fields=status,city,regionName,country,lat,lon", timeout=3)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("status") == "success":
+                city = data.get("city") or data.get("regionName") or fallback_city
+                lat = data.get("lat", fallback_lat)
+                lon = data.get("lon", fallback_lon)
+                return lat, lon, city
+    except Exception:
+        pass
+    return fallback_lat, fallback_lon, fallback_city
+
+def get_wind_direction_vn(degrees):
+    """Chuyển đổi góc la bàn sang hướng gió tiếng Việt"""
+    if degrees is None:
+        return "Không rõ"
+    directions = ["Bắc", "Đông Bắc", "Đông", "Đông Nam", "Nam", "Tây Nam", "Tây", "Tây Bắc"]
+    idx = int((degrees + 22.5) % 360 // 45)
+    return directions[idx]
+
+def get_weather(lat=None, lon=None, location_label=None):
+    """Lấy thông tin thời tiết thời gian thực: Tự động định vị, Lượng mưa, Tốc độ gió từ Open-Meteo"""
+    if lat is None or lon is None:
+        lat, lon, detected_city = get_auto_location()
+        if not location_label:
+            location_label = f"{detected_city} (Tự động)"
+    else:
+        if not location_label:
+            location_label = "Vị trí chỉ định"
+
+    url = (
+        f"https://api.open-meteo.com/v1/forecast?"
+        f"latitude={lat}&longitude={lon}&"
+        f"current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m,wind_direction_10m&"
+        f"daily=sunrise,sunset&timezone=Asia%2FHo_Chi_Minh"
+    )
     
     try:
         response = requests.get(url, timeout=5)
@@ -87,9 +123,24 @@ def get_weather(lat=9.176, lon=105.150):
             daily_data = data.get("daily", {})
             
             temp = current_data.get("temperature_2m", "--")
+            apparent_temp = current_data.get("apparent_temperature", temp)
             humidity = current_data.get("relative_humidity_2m", "--")
             code = current_data.get("weather_code", 0)
             status = WEATHER_CODES.get(code, "Thời tiết bình thường")
+            
+            # Lượng mưa và đo đạc mưa
+            precipitation = current_data.get("precipitation", 0.0)
+            rain = current_data.get("rain", 0.0)
+            rain_amount = precipitation if precipitation is not None and precipitation > 0 else rain
+            if rain_amount is not None and rain_amount > 0:
+                rain_str = f"{rain_amount:.1f} mm (Có mưa)"
+            else:
+                rain_str = "0 mm (Không mưa)"
+                
+            # Tốc độ gió và hướng gió
+            wind_speed = current_data.get("wind_speed_10m", "--")
+            wind_deg = current_data.get("wind_direction_10m")
+            wind_dir = get_wind_direction_vn(wind_deg)
             
             sunrise_raw = daily_data.get("sunrise", [""])[0]
             sunset_raw = daily_data.get("sunset", [""])[0]
@@ -97,15 +148,18 @@ def get_weather(lat=9.176, lon=105.150):
             sunrise = sunrise_raw.split("T")[1] if "T" in sunrise_raw else "--:--"
             sunset = sunset_raw.split("T")[1] if "T" in sunset_raw else "--:--"
             
-            print(f"\${{alignc}}\${{color5}}Trạng thái : {status}\${{color}}")
-            print(f"\${{alignc}}\${{color5}}Nhiệt độ   : {temp}°C | Độ ẩm: {humidity}%\${{color}}")
+            print(f"\${{alignc}}\${{color5}}Vị trí     : {location_label}\${{color}}")
+            print(f"\${{alignc}}\${{color5}}Trạng thái : {status} | {temp}°C (Cảm giác {apparent_temp}°C)\${{color}}")
+            print(f"\${{alignc}}\${{color5}}Độ ẩm: {humidity}% | Mưa: {rain_str}\${{color}}")
+            print(f"\${{alignc}}\${{color5}}Tốc độ gió : {wind_speed} km/h (Hướng {wind_dir})\${{color}}")
             print(f"\${{alignc}}\${{color6}}Mặt trời   : Mọc {sunrise} | Lặn {sunset}\${{color}}")
             print(f"\${{alignc}}-----------------------------------")
         else:
+            print(f"\${{alignc}}\${{color5}}Vị trí     : {location_label}\${{color}}")
             print(f"\${{alignc}}\${{color5}}Thời tiết  : Đang cập nhật...\${{color}}")
             print(f"\${{alignc}}-----------------------------------")
     except Exception:
-        print(f"\${{alignc}}\${{color5}}Thời tiết  : Lỗi kết nối mạng\${{color}}")
+        print(f"\${{alignc}}\${{color5}}Thời tiết  : Lỗi kết nối mạng (Tự động thử lại)\${{color}}")
         print(f"\${{alignc}}-----------------------------------")
 
 def get_solar_longitude(eph, ts, dt_utc):

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Sliders, MapPin, Clock, Palette, Terminal, Copy, Check, Sparkles, Download, ArrowRight } from 'lucide-react';
+import { Sliders, MapPin, Clock, Palette, Terminal, Copy, Check, Sparkles, Download, ArrowRight, CloudRain, Wind, Compass } from 'lucide-react';
 import { VIETNAM_LOCATIONS, CONKY_THEMES } from '../data/locations';
 import { CONKY_CONFIG_SOURCE, START_SCRIPT_SOURCE } from '../data/sourceCode';
 
 export function ConfigGenerator() {
+  const [useAutoLocation, setUseAutoLocation] = useState(true);
   const [selectedCity, setSelectedCity] = useState(VIETNAM_LOCATIONS[0].name);
   const [latitude, setLatitude] = useState(VIETNAM_LOCATIONS[0].lat);
   const [longitude, setLongitude] = useState(VIETNAM_LOCATIONS[0].lng);
@@ -77,9 +78,13 @@ cd ~/.config/conky
 conky -d -c ~/.config/conky/conky_lunar.conf
 echo "Đã khởi động Conky Lịch Âm Bát Tự ẩn ngầm thành công!"`;
 
-  const oneLinerApply = `# Cập nhật tọa độ (${latitude}, ${longitude}) và thời gian trễ ${delaySeconds}s:
-sed -i 's/latitude = .*/latitude = ${latitude}/' ~/.config/conky/lunar_battu.py 2>/dev/null || true
-sed -i 's/longitude = .*/longitude = ${longitude}/' ~/.config/conky/lunar_battu.py 2>/dev/null || true
+  const oneLinerApply = useAutoLocation
+    ? `# Bật tự động định vị GeoIP (kèm lượng mưa & tốc độ gió) và thời gian trễ ${delaySeconds}s:
+sed -i 's/get_weather(.*)/get_weather()/' ~/.config/conky/lunar_battu.py 2>/dev/null || true
+sed -i 's/DELAY_SECONDS=.*/DELAY_SECONDS=${delaySeconds}/' ~/.config/conky/start_conky.sh 2>/dev/null || true
+killall conky 2>/dev/null && ~/.config/conky/start_conky.sh`
+    : `# Cập nhật tọa độ (${latitude}, ${longitude}) (${selectedCity}), lượng mưa & tốc độ gió và trễ ${delaySeconds}s:
+sed -i 's/get_weather(.*)/get_weather(${latitude}, ${longitude}, "${selectedCity}")/' ~/.config/conky/lunar_battu.py 2>/dev/null || true
 sed -i 's/DELAY_SECONDS=.*/DELAY_SECONDS=${delaySeconds}/' ~/.config/conky/start_conky.sh 2>/dev/null || true
 killall conky 2>/dev/null && ~/.config/conky/start_conky.sh`;
 
@@ -99,42 +104,89 @@ killall conky 2>/dev/null && ~/.config/conky/start_conky.sh`;
             <span>Trình Tạo Cấu Hình Thông Minh</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Tùy Biến Tọa Độ Địa Phương & Thời Gian Trễ
+            Tùy Biến Định Vị, Lượng Mưa, Gió & Thời Gian Trễ
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-300">
-            Chọn tỉnh thành của bạn để cập nhật chính xác thời tiết và giờ Mặt Trời mọc/lặn,
-            đồng thời tùy chỉnh độ trễ khởi động khi mở máy.
+            Tùy chọn tự động định vị qua GeoIP mạng hoặc chỉ định tọa độ địa phương,
+            cập nhật đo đạc lượng mưa, tốc độ gió và giờ Mặt Trời mọc/lặn.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Controls Form (Col 1-5) */}
           <div className="lg:col-span-5 p-6 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-6">
-            {/* City Selector */}
+            {/* Location mode */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-cyan-400" />
-                <span>Tỉnh / Thành Phố (Thời tiết & Mặt Trời)</span>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-cyan-400" />
+                  Phương Thức Định Vị Vị Trí
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  GeoIP + Mưa + Gió
+                </span>
               </label>
-              <select
-                value={selectedCity}
-                onChange={(e) => handleCityChange(e.target.value)}
-                className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:border-cyan-500 outline-none"
-              >
-                {VIETNAM_LOCATIONS.map((city) => (
-                  <option key={city.name} value={city.name}>
-                    {city.name} (Vĩ độ: {city.lat}, Kinh độ: {city.lng})
-                  </option>
-                ))}
-              </select>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="text-xs text-slate-400">
-                  Vĩ độ (Lat): <span className="text-cyan-300 font-mono font-bold">{latitude}</span>
-                </div>
-                <div className="text-xs text-slate-400">
-                  Kinh độ (Lng): <span className="text-cyan-300 font-mono font-bold">{longitude}</span>
-                </div>
+
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setUseAutoLocation(true)}
+                  className={`p-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                    useAutoLocation
+                      ? 'border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm'
+                      : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Tự động qua IP</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUseAutoLocation(false)}
+                  className={`p-2.5 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                    !useAutoLocation
+                      ? 'border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm'
+                      : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5" />
+                  <span>Chỉ định tỉnh thành</span>
+                </button>
               </div>
+
+              {useAutoLocation ? (
+                <div className="p-3 rounded-xl bg-slate-950 border border-cyan-500/30 text-xs text-slate-300 space-y-1">
+                  <div className="text-cyan-300 font-semibold flex items-center gap-1.5">
+                    <CloudRain className="w-3.5 h-3.5" />
+                    <span>Tự động phát hiện vị trí máy tính</span>
+                  </div>
+                  <p className="text-slate-400 text-[11px] leading-relaxed">
+                    Script Python tự động xác định thành phố qua kết nối Internet, sau đó gọi Open-Meteo để lấy nhiệt độ, cảm giác thực tế, lượng mưa (mm) và tốc độ gió (km/h).
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => handleCityChange(e.target.value)}
+                    className="w-full p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:border-cyan-500 outline-none"
+                  >
+                    {VIETNAM_LOCATIONS.map((city) => (
+                      <option key={city.name} value={city.name}>
+                        {city.name} (Vĩ độ: {city.lat}, Kinh độ: {city.lng})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="text-xs text-slate-400">
+                      Vĩ độ: <span className="text-cyan-300 font-mono font-bold">{latitude}</span>
+                    </div>
+                    <div className="text-xs text-slate-400">
+                      Kinh độ: <span className="text-cyan-300 font-mono font-bold">{longitude}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Delay seconds slider */}
