@@ -7,6 +7,7 @@ import {
   AUTOSTART_DESKTOP_ENTRY,
   ONE_CLICK_INSTALL_SCRIPT,
 } from '../data/sourceCode';
+import { CURRENT_VERSION } from '../data/versions';
 
 export function CodeRepository() {
   const [activeTab, setActiveTab] = useState<'python' | 'conky' | 'start' | 'desktop' | 'installer'>('python');
@@ -88,14 +89,14 @@ export function CodeRepository() {
               <span>Kho Mã Nguồn Trọn Bộ</span>
             </div>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-              v3.2.0
+              {CURRENT_VERSION}
             </span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
             Bộ Mã Nguồn & Tệp Cấu Hình Đầy Đủ
           </h2>
           <p className="text-sm text-slate-400 mt-2">
-            Mã nguồn đã được rà soát, kiểm thử và chuẩn hóa 100% (v3.2.0) — bao gồm thuật toán thiên văn NASA JPL DE421, xử lý thời tiết Open-Meteo và cấu hình XFCE Compositor.
+            Mã nguồn đã được rà soát, kiểm thử và chuẩn hóa 100% ({CURRENT_VERSION}) — bao gồm thuật toán thiên văn NASA JPL DE421, xử lý thời tiết Open-Meteo và cấu hình XFCE Compositor.
           </p>
         </div>
 

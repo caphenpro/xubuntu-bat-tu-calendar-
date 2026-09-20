@@ -63,13 +63,15 @@ export function generateSingleInstallerScript(opts: InstallerOptions): string {
 
     -- Font chữ và render text
     use_xft = true,
-    font = 'DejaVu Sans:size=10',
+    font = 'DejaVu Sans:size=10:bold',
     xftalpha = 0.9,
     uppercase = false,
-    draw_shades = false,
+    text_buffer_size = 2048,
+    draw_shades = true,
+    default_shade_color = '#000000',
     draw_outline = false,
     draw_borders = false,
-    draw_graph_borders = false,
+    draw_graph_borders = true,
 
     -- Bảng màu chủ đề: ${theme.name}
     default_color = '${theme.colorDate}',
@@ -82,7 +84,14 @@ export function generateSingleInstallerScript(opts: InstallerOptions): string {
 };
 
 conky.text = [[
-\${execpi 60 python3 $HOME/.config/conky/lunar_battu.py}
+\${alignc}\${font DejaVu Sans:size=14:bold}\${color1}LỊCH ÂM – BÁT TỰ\${font}\${color}
+\${color1}\${hr 2}\${color}
+\${alignc}\${color1}Dương Lịch: \${color}\${time %d/%m/%Y} - \${time %H:%M:%S}
+\${color1}\${hr 1}\${color}
+\${execpi 60 python3 ~/.config/conky/lunar_battu.py}
+\${color1}\${hr 1}\${color}
+\${alignc}\${color1}CPU:\${color} \${cpu cpu0}% \${cpubar 7,120}
+\${alignc}\${color1}RAM:\${color} \${memperc}% \${membar 7,120}
 ]];`;
 
   const locationSummary = opts.isAutoLocation

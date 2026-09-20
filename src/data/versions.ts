@@ -12,14 +12,43 @@ export interface VersionRelease {
   comparisonWithPrevious: string;
 }
 
-export const CURRENT_VERSION = 'v3.2.0';
+export const CURRENT_VERSION = 'v3.2.1';
 
 export const VERSION_HISTORY: VersionRelease[] = [
+  {
+    version: 'v3.2.1',
+    releaseDate: '09/2026',
+    codename: 'Đồng Bộ Giao Diện Thực Tế (Visual Parity)',
+    status: 'current',
+    highlight: 'Khôi phục Tiêu Đề "LỊCH ÂM – BÁT TỰ", Dương Lịch và thanh CPU/RAM trong file conky_lunar.conf',
+    description:
+      'Khắc phục sự cố bộ cài 1-file vô tình thiếu phần tiêu đề Lua conky.text khiến Conky trên máy thật chỉ hiển thị phần thân thời tiết. Khôi phục đầy đủ tiêu đề LỊCH ÂM - BÁT TỰ font 14 bold căn giữa, đồng hồ Dương lịch thời gian thực và 2 thanh đo tải CPU/RAM, khớp 100% với giao diện mô phỏng.',
+    changes: [
+      {
+        category: 'Sửa Lỗi',
+        items: [
+          'Khôi phục dòng tiêu đề "${alignc}${font DejaVu Sans:size=14:bold}${color1}LỊCH ÂM – BÁT TỰ" và đường kẻ đôi phân cách ${hr 2} trong cấu hình conky_lunar.conf.',
+          'Khôi phục dòng đồng hồ Dương Lịch thời gian thực "${time %d/%m/%Y} - ${time %H:%M:%S}" cập nhật mượt mà mỗi giây.',
+          'Khôi phục 2 thanh đo tải phần cứng CPU và RAM (${cpubar}, ${membar}) dưới chân giao diện.',
+          'Kích hoạt font chữ DejaVu Sans:size=10:bold kèm hiệu ứng bóng đen (draw_shades = true) giúp chữ sắc nét, dễ đọc trên mọi hình nền Xubuntu.',
+        ],
+      },
+      {
+        category: 'Tối Ưu',
+        items: [
+          'Tăng dung lượng text_buffer_size lên 2048 để chứa trọn vẹn toàn bộ dữ liệu thiên văn và thời tiết mà không bị cắt xén.',
+          'Chuẩn hóa đường dẫn ~/.config/conky/lunar_battu.py trong cú pháp execpi 60.',
+        ],
+      },
+    ],
+    comparisonWithPrevious:
+      'Giao diện khi chạy thực tế trên máy người dùng (Xubuntu Desktop) hiển thị đầy đủ, cân đối từ trên xuống dưới hoàn toàn giống với bản xem trước mô phỏng.',
+  },
   {
     version: 'v3.2.0',
     releaseDate: '09/2026',
     codename: 'Hoàn Thiện Tối Đa (Rock-Solid Edition)',
-    status: 'current',
+    status: 'stable',
     highlight: 'Vá triệt để lỗi UnboundLocalError thời tiết, chuẩn hóa Conky tag và bộ cài 1-file 100% tự động',
     description:
       'Phiên bản ổn định và hoàn thiện nhất hiện nay. Khắc phục sự cố gián đoạn tiến trình do lỗi biến thời tiết cục bộ, loại bỏ ký tự thoát gây lỗi hiển thị màu Conky, đồng thời tích hợp toàn diện mọi thành phần vào 1 lệnh chạy duy nhất.',

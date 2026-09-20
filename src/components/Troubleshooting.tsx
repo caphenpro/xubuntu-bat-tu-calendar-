@@ -13,6 +13,62 @@ export function Troubleshooting() {
 
   const faqs = [
     {
+      q: "Tại sao trên Desktop chỉ hiện thời tiết mà bị mất Tiêu Đề 'LỊCH ÂM – BÁT TỰ', Dương Lịch và CPU/RAM so với mô phỏng?",
+      a: "Nguyên nhân: File cấu hình ~/.config/conky/conky_lunar.conf của bạn chỉ chứa lệnh gọi mã nguồn Python mà bị thiếu khối khai báo tiêu đề Lua conky.text. Bản v3.2.1 đã cập nhật đầy đủ khối tiêu đề, đồng hồ Dương lịch thời gian thực và thanh CPU/RAM vào bộ cài 1-file.",
+      fix: "Bạn không cần cài lại từ đầu! Hãy sao chép và dán lệnh dưới đây vào Terminal trên Xubuntu để cập nhật file conky_lunar.conf chuẩn và khởi động lại ngay lập tức:",
+      cmd: `cat << 'EOF' > ~/.config/conky/conky_lunar.conf
+conky.config = {
+    alignment = 'top_right',
+    gap_x = 25,
+    gap_y = 45,
+    minimum_width = 300,
+    maximum_width = 340,
+    update_interval = 1.0,
+    total_run_times = 0,
+    double_buffer = true,
+    no_buffers = true,
+    cpu_avg_samples = 2,
+    net_avg_samples = 2,
+    own_window = true,
+    own_window_type = 'desktop',
+    own_window_transparent = true,
+    own_window_argb_visual = true,
+    own_window_argb_value = 0,
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+    own_window_class = 'Conky',
+    use_xft = true,
+    font = 'DejaVu Sans:size=10:bold',
+    xftalpha = 0.9,
+    uppercase = false,
+    text_buffer_size = 2048,
+    draw_shades = true,
+    default_shade_color = '#000000',
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = true,
+    default_color = '#ffffff',
+    color1 = '#00e5ff',
+    color2 = '#ffd600',
+    color3 = '#ff9100',
+    color4 = '#00e676',
+    color5 = '#00b0ff',
+    color6 = '#ff4081',
+};
+
+conky.text = [[
+\${alignc}\${font DejaVu Sans:size=14:bold}\${color1}LỊCH ÂM – BÁT TỰ\${font}\${color}
+\${color1}\${hr 2}\${color}
+\${alignc}\${color1}Dương Lịch: \${color}\${time %d/%m/%Y} - \${time %H:%M:%S}
+\${color1}\${hr 1}\${color}
+\${execpi 60 python3 ~/.config/conky/lunar_battu.py}
+\${color1}\${hr 1}\${color}
+\${alignc}\${color1}CPU:\${color} \${cpu cpu0}% \${cpubar 7,120}
+\${alignc}\${color1}RAM:\${color} \${memperc}% \${membar 7,120}
+]];
+EOF
+killall conky && ~/.config/conky/start_conky.sh`,
+    },
+    {
       q: "Gặp lỗi 'UnboundLocalError: local variable location_label referenced before assignment' trong get_weather()?",
       a: "Nguyên nhân: Khi kết nối mạng bị chập chờn hoặc API Open-Meteo phản hồi chậm, hàm thời tiết get_weather() trong các phiên bản cũ cố gắng truy xuất biến location_label trước khi biến này được gán giá trị ở nhánh ngoại lệ.",
       fix: "Bản nâng cấp v3.2.0 đã sửa triệt để lỗi này bằng cách gán tham số mặc định an toàn location_label=\"\" và kiểm soát toàn bộ nhánh fallback ngoại tuyến. Hãy sử dụng bộ cài 1-file v3.2.0 để cập nhật file lunar_battu.py mới nhất:",
