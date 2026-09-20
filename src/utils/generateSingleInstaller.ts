@@ -18,17 +18,18 @@ export function generateSingleInstallerScript(opts: InstallerOptions): string {
   const gapX = opts.gapX ?? 25;
   const gapY = opts.gapY ?? 45;
 
-  // Prepare Python script with customized weather call
+  // Prepare Python script with customized weather call inside main()
   let customizedPython = PYTHON_SCRIPT_SOURCE;
+  const weatherCallRegex = /(# 1\. Hiển thị thông tin thời tiết\s+)get_weather\([^)]*\)/;
   if (opts.isAutoLocation) {
     customizedPython = customizedPython.replace(
-      /get_weather\([^)]*\)/,
-      `get_weather()`
+      weatherCallRegex,
+      `$1get_weather()`
     );
   } else {
     customizedPython = customizedPython.replace(
-      /get_weather\([^)]*\)/,
-      `get_weather(lat=${opts.latitude}, lon=${opts.longitude}, location_label="${opts.selectedCity}")`
+      weatherCallRegex,
+      `$1get_weather(lat=${opts.latitude}, lon=${opts.longitude}, location_label="${opts.selectedCity}")`
     );
   }
 
@@ -91,6 +92,7 @@ conky.text = [[
   return `#!/usr/bin/env bash
 #========================================================================#
 #  BỘ CÀI ĐẶT 1-FILE DUY NHẤT: CONKY LỊCH ÂM - BÁT TỰ TRÊN XUBUNTU      #
+#  Phiên bản: v3.2.0 (Bản Phát Hành Ổn Định - Đã Vá Lỗi Toàn Diện)       #
 #------------------------------------------------------------------------#
 #  Cấu hình xuất tự động theo tùy chỉnh của bạn:                          #
 #  - Vị trí định vị  : ${locationSummary}
@@ -98,8 +100,11 @@ conky.text = [[
 #  - Vị trí màn hình : ${opts.position}
 #  - Độ trễ khởi động : ${opts.delaySeconds} giây
 #------------------------------------------------------------------------#
-#  HƯỚNG DẪN CHẠY:                                                       #
-#  Mở Terminal (Ctrl + Alt + T), dán lệnh và nhấn Enter là xong ngay!   #
+#  CẢI TIẾN TRỌNG TÂM v3.2.0:                                            #
+#  ✓ Sửa lỗi UnboundLocalError trong hàm get_weather()                   #
+#  ✓ Tương thích PEP 668 (--break-system-packages) Ubuntu 22.04 & 24.04   #
+#  ✓ Tải dự phòng 2 tầng file NASA JPL DE421 (GitHub + NASA NAIF)        #
+#  ✓ Tự động Autostart với độ trễ an toàn ${opts.delaySeconds}s cho XFCE                 #
 #========================================================================#
 
 set -e

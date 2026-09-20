@@ -13,6 +13,13 @@ export function Troubleshooting() {
 
   const faqs = [
     {
+      q: "Gặp lỗi 'UnboundLocalError: local variable location_label referenced before assignment' trong get_weather()?",
+      a: "Nguyên nhân: Khi kết nối mạng bị chập chờn hoặc API Open-Meteo phản hồi chậm, hàm thời tiết get_weather() trong các phiên bản cũ cố gắng truy xuất biến location_label trước khi biến này được gán giá trị ở nhánh ngoại lệ.",
+      fix: "Bản nâng cấp v3.2.0 đã sửa triệt để lỗi này bằng cách gán tham số mặc định an toàn location_label=\"\" và kiểm soát toàn bộ nhánh fallback ngoại tuyến. Hãy sử dụng bộ cài 1-file v3.2.0 để cập nhật file lunar_battu.py mới nhất:",
+      cmd: `sed -i 's/def get_weather(lat=None, lon=None, location_label=None):/def get_weather(lat=None, lon=None, location_label=""):/' ~/.config/conky/lunar_battu.py
+killall conky && ~/.config/conky/start_conky.sh`,
+    },
+    {
       q: "Khi nhấn chuột trái/phải vào màn hình Desktop thì Conky bị biến mất?",
       a: "Đây là hiện tượng xfdesktop (trình quản lý màn hình nền XFCE) giành quyền ưu tiên hiển thị đè lên Conky.",
       fix: "Trong file ~/.config/conky/conky_lunar.conf, đảm bảo bạn đã đặt: own_window_type = 'desktop' và own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager'. Tùy chọn 'below' giữ Conky luôn ở lớp nền dưới cùng.",

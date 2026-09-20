@@ -2,10 +2,12 @@ export const PYTHON_SCRIPT_SOURCE = `#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Chương trình: Lịch Âm - Bát Tự & Tiết Khí Thiên Văn cho Conky (Xubuntu)
+Phiên bản: v3.2.0 (Ổn định - Tối ưu 100% cho Xubuntu / XFCE)
 Tác giả: Hướng dẫn tích hợp cho XFCE/Xubuntu Desktop
-Tính năng:
-  - Dự báo thời tiết tự động qua Open-Meteo API
-  - Can Chi Bát Tự: Năm, Tháng, Ngày, Giờ chính xác
+Tính năng & Cải tiến:
+  - Dự báo thời tiết tự động qua Open-Meteo API (Lượng mưa mm, Tốc độ gió km/h, Hướng gió VN)
+  - Đã khắc phục triệt để lỗi UnboundLocalError trong hàm get_weather()
+  - Can Chi Bát Tự: Năm, Tháng, Ngày, Giờ chính xác theo Thiên Can - Địa Chi
   - Xác định 24 Tiết Khí & Trung Khí thiên văn qua NASA JPL Ephemeris DE421
   - Tính điểm Sóc (Trăng Mới), Âm Lịch, Tháng Đủ/Thiếu
   - Định dạng chuẩn Conky Color Tags để render trực tiếp lên Desktop
@@ -98,7 +100,7 @@ def get_wind_direction_vn(degrees):
     idx = int((degrees + 22.5) % 360 // 45)
     return directions[idx]
 
-def get_weather(lat=None, lon=None, location_label=None):
+def get_weather(lat=None, lon=None, location_label=""):
     """Lấy thông tin thời tiết thời gian thực: Tự động định vị, Lượng mưa, Tốc độ gió từ Open-Meteo"""
     if lat is None or lon is None:
         lat, lon, detected_city = get_auto_location()

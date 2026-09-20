@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Moon, Sparkles, Terminal, Download, Monitor, Sliders, HelpCircle, Code2, Menu, X, Check } from 'lucide-react';
+import { Moon, Sparkles, Terminal, Download, Monitor, Sliders, HelpCircle, Code2, Menu, X, Check, History } from 'lucide-react';
+import { CURRENT_VERSION } from '../data/versions';
 
 interface NavbarProps {
   onQuickInstallClick: () => void;
@@ -30,11 +31,19 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-base tracking-tight text-white">Lịch Âm - Bát Tự</span>
-              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-cyan-500/15 text-cyan-400 rounded border border-cyan-500/30">
-                Xubuntu 22/24
-              </span>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  scrollTo('documentation-hub');
+                }}
+                className="px-1.5 py-0.5 text-[10px] font-semibold font-mono bg-cyan-500/15 text-cyan-300 rounded border border-cyan-500/30 hover:bg-cyan-500/25 transition-colors cursor-pointer flex items-center gap-1"
+                title="Xem nhật ký nâng cấp phiên bản"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{CURRENT_VERSION}</span>
+              </button>
             </div>
-            <p className="text-xs text-slate-400">Giao diện Conky Màn Hình Tối Ưu</p>
+            <p className="text-xs text-slate-400">Giao diện Conky XFCE Màn Hình Tối Ưu</p>
           </div>
         </div>
 
@@ -58,8 +67,8 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
             onClick={() => scrollTo('documentation-hub')}
             className="px-3 py-2 rounded-lg hover:text-cyan-400 hover:bg-slate-800/60 transition-colors flex items-center gap-1.5"
           >
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            Tối Ưu XFCE & Sửa Lỗi
+            <History className="w-4 h-4 text-purple-400" />
+            Nhật Ký Phiên Bản & Sửa Lỗi
           </button>
         </nav>
 
@@ -108,8 +117,8 @@ export function Navbar({ onQuickInstallClick }: NavbarProps) {
             onClick={() => scrollTo('documentation-hub')}
             className="w-full text-left px-3 py-2.5 rounded-lg text-slate-200 hover:bg-slate-800 flex items-center gap-2"
           >
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            Tài Liệu Kỹ Thuật, XFCE & Sửa Lỗi
+            <History className="w-4 h-4 text-purple-400" />
+            Nhật Ký Phiên Bản & Kỹ Thuật ({CURRENT_VERSION})
           </button>
           <div className="pt-2">
             <button

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Terminal, Copy, Check, Sparkles, Shield, Cpu, Clock, Compass, ArrowRight, Play } from 'lucide-react';
+import { Terminal, Copy, Check, Sparkles, Shield, Cpu, Clock, Compass, ArrowRight, Play, History, CheckCircle2 } from 'lucide-react';
+import { CURRENT_VERSION } from '../data/versions';
 
 interface HeroProps {
   onExploreClick: () => void;
@@ -7,15 +8,6 @@ interface HeroProps {
 }
 
 export function Hero({ onExploreClick, onInstallGuideClick }: HeroProps) {
-  const [copied, setCopied] = useState(false);
-  const oneLinerCommand = `bash <(curl -sSL https://gist.githubusercontent.com/raw/lunar_conky_xubuntu.sh)`;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(oneLinerCommand);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 border-b border-slate-800/80">
       {/* Ambient background glow */}
@@ -23,10 +15,22 @@ export function Hero({ onExploreClick, onInstallGuideClick }: HeroProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-medium mb-6">
-            <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span>Dành riêng cho hệ điều hành Xubuntu & Môi trường XFCE Desktop</span>
+          {/* Badge with Version */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+            <button
+              onClick={onInstallGuideClick}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-medium transition-colors cursor-pointer group"
+              title="Xem nhật ký nâng cấp phiên bản"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono font-bold text-white">{CURRENT_VERSION}</span>
+              <span className="text-slate-400">|</span>
+              <span className="group-hover:text-cyan-200">Bản Phát Hành Ổn Định Nhất 2026</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-0.5" />
+            </button>
+            <span className="hidden sm:inline-block px-3 py-1 rounded-full bg-slate-800/60 border border-slate-700/60 text-slate-300 text-xs font-medium">
+              Xubuntu & XFCE Desktop
+            </span>
           </div>
 
           {/* Heading */}
@@ -40,7 +44,7 @@ export function Hero({ onExploreClick, onInstallGuideClick }: HeroProps) {
           {/* Subtitle */}
           <p className="mt-5 text-base sm:text-lg lg:text-xl text-slate-300 leading-relaxed max-w-3xl mx-auto">
             Mô phỏng tùy chỉnh Lịch Âm, Bát Tự Can Chi, 24 Tiết Khí NASA JPL và Thời tiết mưa/gió trên màn hình ảo.
-            Sau đó nhận ngay <strong>1 tệp cài đặt duy nhất (.sh)</strong> tích hợp sẵn mọi cấu hình, chỉ cần copy dán vào Terminal là chạy lên desktop ngay!
+            Đã vá lỗi biến thời tiết cục bộ và tích hợp trọn gói vào <strong>1 tệp cài đặt duy nhất (.sh)</strong> — copy dán 1 lệnh vào Terminal là xuất hiện ngay trên Desktop!
           </p>
 
           {/* Action buttons */}
@@ -59,8 +63,8 @@ export function Hero({ onExploreClick, onInstallGuideClick }: HeroProps) {
               onClick={onInstallGuideClick}
               className="px-6 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-slate-700 text-slate-200 font-semibold text-base flex items-center gap-2.5 transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>Tài Liệu XFCE & Sửa Lỗi</span>
+              <History className="w-4 h-4 text-purple-400" />
+              <span>Nhật Ký Phiên Bản & Kỹ Thuật</span>
             </button>
           </div>
 
